@@ -175,7 +175,7 @@ class HM {
       let element = new Array(2) // Иммитация работы в строгих языках
       element[0] = key
       element[1] = value
-      ceil.add([ key, value ]) // Добавление новых данных по ключу
+      ceil.add(element) // Добавление новых данных по ключу
     }
   }
 
