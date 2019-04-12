@@ -250,6 +250,8 @@ class HM {
     return this.size
   }
 
+  // --- Статичные методы --- //
+
   // Создание данного хэш-мапа с прокси
   // чтобы использовать как обычный объект
   static create(size) {
@@ -273,19 +275,15 @@ class HM {
     return proxy
   }
 
-
-
   static entries(hm) {
     const instance = getInstance(hm)
     return instance ? instance.entries() : undefined
   }
 
-
   static keys(hm) {
     const instance = getInstance(hm)
     return instance ? instance.keys() : undefined
   }
-
 
   static values(hm) {
     const instance = getInstance(hm)
