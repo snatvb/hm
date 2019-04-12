@@ -1,3 +1,4 @@
+// Элемент связанного списка
 class ListItem {
   constructor(data, next = null) {
     this.next = next
@@ -5,6 +6,7 @@ class ListItem {
   }
 }
 
+// Стрктура данных - связанный список
 class List {
   constructor() {
     this.count = 0
@@ -46,8 +48,6 @@ class List {
 
     return false
   }
-
-
 
   find(predicate) {
     let item = this.item
@@ -123,7 +123,11 @@ class List {
   }
 }
 
-
+/*
+  Функция хеширования
+  Служит для того, чтобы получить
+  числовой номер в таблице (номер строки)
+*/
 function hash(data, size) {
   const key = "" + data
   let result = 0
@@ -134,58 +138,77 @@ function hash(data, size) {
   return result % size
 }
 
-function getInstance(hashmap) {
-  if (hashmap === null || typeof hashmap !== "object") {
+// Получение экземпляра хэш-мап из proxy-обертки
+function getInstance(hm) {
+  if (hm === null || typeof hm !== "object") {
     return undefined
   }
-  const instance = hashmap["__inst__"]
-  if (!(instance instanceof HashMap)) {
+  const instance = hm["__inst__"]
+  if (!(instance instanceof HM)) {
     return undefined
   }
   return instance
 }
 
-class HashMap {
+class HM {
+  // size - Размер хэш-таблицы (маленькое занчение, для провоцирвоания коллизий)
   constructor(size = 10) {
     this.size = size
-    this.table = []
+    this.table = new Array(this.size) // хеш-таблица
   }
 
+  // Сохранение значения по ключу
   set(key, value) {
+    // Получение номера ячейки (преобразование ключа к числу)
     const index = hash(key, this.size)
     if (this.table[index] === undefined) {
+      // Если ячейка была пуста, сначала нужно ее инициализирвоать,
+      // положив туда связанный список
       this.table[index] = new List()
     }
     const ceil = this.table[index]
-    const item = ceil.find((item) => item.key === key)
+    // Попытка найти данные с таким ключем, если они есть, то данные необходимо заменить
+    const item = ceil.find((item) => item[0] === key)
     if (item) {
-      item.value = value
+      item.value = value // Замена данных в существующем элементе
     } else {
-      ceil.add({ key, value })
+      let element = new Array(2) // Иммитация работы в строгих языках
+      element[0] = key
+      element[1] = value
+      ceil.add([ key, value ]) // Добавление новых данных по ключу
     }
   }
 
   get(key) {
+    // Получение номера ячейки (преобразование ключа к числу)
     const index = hash(key, this.size)
     const ceil = this.table[index]
 
-    if (!ceil) return
-    const item = ceil.find((item) => item.key === key)
-    if (!item) return
-    return item.value
+    // Если ячейки нет, возвращается undefined
+    if (!ceil) return undefined
+    // Попытка найти данные по такому ключу в связанном списке
+    const item = ceil.find((item) => item[0] === key)
+    if (!item) return undefined
+    return item[1]
   }
 
   remove(key) {
+    // Получение номера ячейки (преобразование ключа к числу)
     const index = hash(key, this.size)
     const ceil = this.table[index]
     if (!ceil) {
       return
     }
 
-    const removed = ceil.findAndRemove((item) => item.key === key)
+    // Попытка найти данные по такому ключу и удалить их в связанном списке
+    const removed = ceil.findAndRemove((item) => item[0] === key)
+    // Если список пуст, то ячейка чищается
+    // дабы не хранить в памяти экземпляр связанного списка
+    // Но это не обязательно и можно этого не делать
     if (ceil.isEmpty()) {
-      delete this.table[index]
+      this.table[index] = undefined
     }
+    // Удаленные данные
     return removed
   }
 
@@ -199,34 +222,38 @@ class HashMap {
     }
   }
 
+  // Получение массива из пар ключе занчение
+  // [ [key, value], [key, value] ... ]
   entries() {
     let result = []
-    this.forEach(({ key, value }) => result.push([key, value]))
+    this.forEach((item) => result.push(item))
     return result
   }
 
   keys() {
     let result = []
-    this.forEach(({ key }) => result.push(key))
+    this.forEach((item) => result.push(item[0]))
     return result
   }
 
   values() {
     let result = []
-    this.forEach(({ value }) => result.push(value))
+    this.forEach((item) => result.push(item[1]))
     return result
   }
 
   toString() {
-    return "HashMap"
+    return "HM"
   }
 
   sizeof() {
     return this.size
   }
 
+  // Создание данного хэш-мапа с прокси
+  // чтобы использовать как обычный объект
   static create(size) {
-    const instance = new HashMap(size)
+    const instance = new HM(size)
     const proxy = new Proxy(instance, {
       get(target, key) {
         if (key === "__inst__") { return instance }
@@ -248,36 +275,20 @@ class HashMap {
 
 
 
-  static entries(hashmap) {
-    const instance = getInstance(hashmap)
+  static entries(hm) {
+    const instance = getInstance(hm)
     return instance ? instance.entries() : undefined
   }
 
 
-  static keys(hashmap) {
-    const instance = getInstance(hashmap)
+  static keys(hm) {
+    const instance = getInstance(hm)
     return instance ? instance.keys() : undefined
   }
 
 
-  static values(hashmap) {
-    const instance = getInstance(hashmap)
+  static values(hm) {
+    const instance = getInstance(hm)
     return instance ? instance.values() : undefined
   }
 }
-
-
-const obj = HashMap.create()
-obj.test = 1
-delete obj.test
-obj.c = "bar"
-obj.cd = "bar"
-obj.foo = "bar"
-obj.baz = "bar"
-obj.func = () => { }
-
-console.dir(obj.c)
-console.dir(HashMap.entries(obj))
-console.dir(HashMap.keys(obj))
-console.dir(HashMap.values(obj))
-console.dir(obj.sizeof())
