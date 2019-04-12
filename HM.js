@@ -128,12 +128,14 @@ class List {
   Служит для того, чтобы получить
   числовой номер в таблице (номер строки)
 */
+const HASH_PRIME = 0xff34
 function hash(data, size) {
   const key = "" + data
-  let result = 0
+  let result = 0xcb
   for (let i = 0; i < key.length; i++) {
     const code = key.charCodeAt(i)
-    result += code * (i + 1)
+    result = result | code
+    result = result * HASH_PRIME
   }
   return result % size
 }
