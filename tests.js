@@ -1,13 +1,20 @@
 const HM = require('./HM')
 
 const test = (name, cb) => {
+  let compared = false
   cb((a, b) => {
+    if (compared) {
+      console.log(`× [Failed] ${name}`)
+      console.log(`  ⤷  This test was did`)
+      return
+    }
     if (a !== b) {
       console.log(`× [Failed] ${name}`)
       console.log(`  ⤷  ${a} and ${b} in not identity`)
     } else {
       console.log(`✔ [Success] ${name}`)
     }
+    compared = true
   })
 }
 
@@ -45,4 +52,16 @@ describe('As Proxy (size: 2048)', () => {
     delete data.bar
     comp(data.bar, undefined)
   })
+})
+
+describe('As Proxy Collistion (size: 2)', () => {
+  const data = HM.create(2)
+
+  for (let i = 0; i < 15; i++) {
+    const key = (i * 2).toString()
+    test(`Set and get ${key}`, (comp) => {
+      data[key] = key
+      comp(data[key], key)
+    })
+  }
 })

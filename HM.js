@@ -1,5 +1,4 @@
 const hash = require('./PJWHash')
-
 // Элемент связанного списка
 class ListItem {
   constructor(data, next = null) {
