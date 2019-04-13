@@ -1,3 +1,6 @@
+const { performance } = require('perf_hooks')
+const hash = require('./PJWHash')
+
 // Элемент связанного списка
 class ListItem {
   constructor(data, next = null) {
@@ -11,17 +14,7 @@ class List {
   constructor() {
     this.count = 0
     this.item = null
-  }
-
-  get last() {
-    let item = this.item
-    if (!item) return null
-
-    while (item.next !== null) {
-      item = item.next
-    }
-
-    return item
+    this.last = null
   }
 
   add(data) {
@@ -35,6 +28,7 @@ class List {
     }
 
     this.count++
+    this.last = item
     return item
   }
 
@@ -88,7 +82,9 @@ class List {
 
       if (nextItem.data === data) {
         item.next = nextItem.next
-        this.item = item
+        if (this.last === nextItem) {
+          this.last = null
+        }
         this.count--
         return true
       }
@@ -112,6 +108,10 @@ class List {
 
       if (predicate(nextItem.data)) {
         item.next = nextItem.next
+        if (this.last === nextItem) {
+          this.last = null
+        }
+        this.count--
         return nextItem.data
       }
       item = nextItem
@@ -123,22 +123,6 @@ class List {
   }
 }
 
-/*
-  Функция хеширования
-  Служит для того, чтобы получить
-  числовой номер в таблице (номер строки)
-*/
-const HASH_PRIME = 0xff34
-function hash(data, size) {
-  const key = "" + data
-  let result = 0xcb
-  for (let i = 0; i < key.length; i++) {
-    const code = key.charCodeAt(i)
-    result = result | code
-    result = result * HASH_PRIME
-  }
-  return result % size
-}
 
 // Получение экземпляра хэш-мап из proxy-обертки
 function getInstance(hm) {
@@ -292,3 +276,5 @@ class HM {
     return instance ? instance.values() : undefined
   }
 }
+
+module.exports = HM
