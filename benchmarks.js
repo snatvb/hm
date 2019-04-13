@@ -14,6 +14,12 @@ console.log(`Items: ${ITEMS_COUNT}`)
 console.log(`Hash table size: ${SIZE}`)
 console.log(DIVIER)
 
+const bench = (name, cb) => () => {
+  const started = performance.now()
+  cb()
+  console.log(`${name}: ${(performance.now() - started).toFixed(3)}ms`)
+}
+
 // VERY SLOW
 // const benchMurmur2 = () => {
 //   const start = performance.now()
@@ -23,47 +29,37 @@ console.log(DIVIER)
 //   console.log(`Murmur2: ${(performance.now() - start).toFixed(3)}ms`)
 // }
 
-const benchFNV1aMod = () => {
-  const start = performance.now()
+const benchFNV1aMod = bench('FNV 1a mod', () => {
   for (let i = 0; i < ITEMS_COUNT; i++) {
     fnv1aModHash(i, SIZE)
   }
-  console.log(`FNV 1a mod: ${(performance.now() - start).toFixed(3)}ms`)
-}
+})
 
-const benchFNV1a = () => {
-  const start = performance.now()
+const benchFNV1a = bench('FNV 1a', () => {
   for (let i = 0; i < ITEMS_COUNT; i++) {
     fnv1aHash(i, SIZE)
   }
-  console.log(`FNV 1a: ${(performance.now() - start).toFixed(3)}ms`)
-}
+})
 
-const benchPJWHash = () => {
-  const start = performance.now()
+const benchPJWHash = bench('PJWHash', () => {
   for (let i = 0; i < ITEMS_COUNT; i++) {
     pjwHash(i, SIZE)
   }
-  console.log(`PJWHash: ${(performance.now() - start).toFixed(3)}ms`)
-}
+})
 
-const benchHM = () => {
+const benchHM = bench('Hash map', () => {
   const data = HM.create(SIZE)
-  const start = performance.now()
   for (let i = 0; i < ITEMS_COUNT; i++) {
     data[i] = i
   }
-  console.log(`Hash map: ${(performance.now() - start).toFixed(3)}ms`)
-}
+})
 
-const benchOrigObject = () => {
+const benchOrigObject = bench('Original object', () => {
   const data = {}
-  const start = performance.now()
   for (let i = 0; i < ITEMS_COUNT; i++) {
     data[i] = i
   }
-  console.log(`Original object: ${(performance.now() - start).toFixed(3)}ms`)
-}
+})
 
 const start = () => {
   // benchMurmur2() // Very slow
