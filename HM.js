@@ -1,3 +1,4 @@
+const hash = require('./PJWHash')
 // Элемент связанного списка
 class ListItem {
   constructor(data, next = null) {
@@ -10,18 +11,8 @@ class ListItem {
 class List {
   constructor() {
     this.count = 0
-    this.item = null
-  }
-
-  get last() {
-    let item = this.item
-    if (!item) return null
-
-    while (item.next !== null) {
-      item = item.next
-    }
-
-    return item
+    this.head = null
+    this.last = null
   }
 
   add(data) {
@@ -31,15 +22,16 @@ class List {
     if (last) {
       last.next = item
     } else {
-      this.item = item
+      this.head = item
     }
 
     this.count++
+    this.last = item
     return item
   }
 
   includes(data) {
-    let item = this.item
+    let item = this.head
     if (!item) return false
 
     do {
@@ -50,7 +42,7 @@ class List {
   }
 
   find(predicate) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     do {
@@ -59,7 +51,7 @@ class List {
   }
 
   forEach(f) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     do {
@@ -68,16 +60,17 @@ class List {
   }
 
   clear() {
-    this.item = null
+    this.head = null
+    this.last = null
     this.count = 0
   }
 
   remove(data) {
-    let item = this.item
-    if (!this.item) return false
+    let item = this.head
+    if (!this.head) return false
 
-    if (this.item.data === data) {
-      this.item = this.item.next
+    if (this.head.data === data) {
+      this.head = this.head.next
       this.count--
       return true
     }
@@ -88,7 +81,9 @@ class List {
 
       if (nextItem.data === data) {
         item.next = nextItem.next
-        this.item = item
+        if (this.last === nextItem) {
+          this.last = null
+        }
         this.count--
         return true
       }
@@ -97,11 +92,11 @@ class List {
   }
 
   findAndRemove(predicate) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     if (predicate(item.data)) {
-      this.item = this.item.next
+      this.head = this.head.next
       this.count--
       return item.data
     }
@@ -112,6 +107,10 @@ class List {
 
       if (predicate(nextItem.data)) {
         item.next = nextItem.next
+        if (this.last === nextItem) {
+          this.last = null
+        }
+        this.count--
         return nextItem.data
       }
       item = nextItem
@@ -119,24 +118,10 @@ class List {
   }
 
   isEmpty() {
-    return !(this.item instanceof ListItem)
+    return !(this.head instanceof ListItem)
   }
 }
 
-/*
-  Функция хеширования
-  Служит для того, чтобы получить
-  числовой номер в таблице (номер строки)
-*/
-function hash(data, size) {
-  const key = "" + data
-  let result = 0
-  for (let i = 0; i < key.length; i++) {
-    const code = key.charCodeAt(i)
-    result += code * (i + 1)
-  }
-  return result % size
-}
 
 // Получение экземпляра хэш-мап из proxy-обертки
 function getInstance(hm) {
@@ -170,7 +155,7 @@ class HM {
     // Попытка найти данные с таким ключем, если они есть, то данные необходимо заменить
     const item = ceil.find((item) => item[0] === key)
     if (item) {
-      item.value = value // Замена данных в существующем элементе
+      item[1] = value // Замена данных в существующем элементе
     } else {
       let element = new Array(2) // Иммитация работы в строгих языках
       element[0] = key
@@ -290,3 +275,5 @@ class HM {
     return instance ? instance.values() : undefined
   }
 }
+
+module.exports = HM
