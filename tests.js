@@ -35,6 +35,12 @@ describe('As Proxy (size: 2048)', () => {
     comp(data.bar, str)
   })
 
+  test('Add baz -> 1 -> 2', (comp) => {
+    data.baz = 1
+    data.baz = 2
+    comp(data.baz, 2)
+  })
+
   test('Remove bar -> "baz" -> undefined', (comp) => {
     delete data.bar
     comp(data.bar, undefined)
