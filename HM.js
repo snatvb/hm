@@ -1,4 +1,3 @@
-const { performance } = require('perf_hooks')
 const hash = require('./PJWHash')
 
 // Элемент связанного списка
@@ -13,7 +12,7 @@ class ListItem {
 class List {
   constructor() {
     this.count = 0
-    this.item = null
+    this.head = null
     this.last = null
   }
 
@@ -24,7 +23,7 @@ class List {
     if (last) {
       last.next = item
     } else {
-      this.item = item
+      this.head = item
     }
 
     this.count++
@@ -33,7 +32,7 @@ class List {
   }
 
   includes(data) {
-    let item = this.item
+    let item = this.head
     if (!item) return false
 
     do {
@@ -44,7 +43,7 @@ class List {
   }
 
   find(predicate) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     do {
@@ -53,7 +52,7 @@ class List {
   }
 
   forEach(f) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     do {
@@ -62,16 +61,17 @@ class List {
   }
 
   clear() {
-    this.item = null
+    this.head = null
+    this.last = null
     this.count = 0
   }
 
   remove(data) {
-    let item = this.item
-    if (!this.item) return false
+    let item = this.head
+    if (!this.head) return false
 
-    if (this.item.data === data) {
-      this.item = this.item.next
+    if (this.head.data === data) {
+      this.head = this.head.next
       this.count--
       return true
     }
@@ -93,11 +93,11 @@ class List {
   }
 
   findAndRemove(predicate) {
-    let item = this.item
+    let item = this.head
     if (!item) return
 
     if (predicate(item.data)) {
-      this.item = this.item.next
+      this.head = this.head.next
       this.count--
       return item.data
     }
@@ -119,7 +119,7 @@ class List {
   }
 
   isEmpty() {
-    return !(this.item instanceof ListItem)
+    return !(this.head instanceof ListItem)
   }
 }
 
