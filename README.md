@@ -15,7 +15,7 @@
 
 Есть два способа использования.  
 Можно использовать создавая экземпляр и помощью конструктора:
-```
+```js
 const data = new HM()
 data.set('foo', 'bar')
 data.set('bar', 'baz')
@@ -26,7 +26,7 @@ console.log(data.get('bar')) // undefeined
 ```
 
 А можно использовать как объект в JS:
-```
+```js
 const obj = HM.create()
 obj.foo = 'bar'
 obj.bar = 'baz'
